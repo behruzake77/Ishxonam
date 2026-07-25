@@ -36,7 +36,7 @@ export const OfficeFloor: React.FC<OfficeFloorProps> = ({ floorId, isSelected, t
       {/* ======== FLOOR SEPARATOR (thin steel band) ======== */}
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[ROOM_W + 0.6, 0.08, ROOM_D + 0.6]} />
-        <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+        <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
       </mesh>
 
       {/* ======== CARPET FLOOR ======== */}
@@ -520,7 +520,7 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       ].map(([cx, cz], i) => (
         <mesh key={`col-${i}`} position={[cx, midY, cz]}>
           <boxGeometry args={[0.5, totalH, 0.5]} />
-          <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+          <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
         </mesh>
       ))}
 
@@ -528,7 +528,7 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       {[-W/2, W/2].map((x, i) => (
         <mesh key={`mcol-${i}`} position={[x, midY, 0]}>
           <boxGeometry args={[0.3, totalH, 0.3]} />
-          <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+          <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
         </mesh>
       ))}
 
@@ -536,24 +536,24 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       {[-9, -5, 0, 5, 9].map((mx, i) => (
         <mesh key={`vmull-${i}`} position={[mx, midY, D/2 + 0.08]}>
           <boxGeometry args={[0.08, totalH, 0.08]} />
-          <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+          <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
         </mesh>
       ))}
 
       {/* ======== SIDE WALL PANELS (solid, full height) ======== */}
       <mesh position={[-W/2 - 0.15, midY, 0]}>
         <boxGeometry args={[0.5, totalH, D + 0.5]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        <meshStandardMaterial color="#2a3548" roughness={0.6} metalness={0.4} />
       </mesh>
       <mesh position={[W/2 + 0.15, midY, 0]}>
         <boxGeometry args={[0.5, totalH, D + 0.5]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        <meshStandardMaterial color="#2a3548" roughness={0.6} metalness={0.4} />
       </mesh>
 
       {/* ======== BACK WALL PANEL (solid, full height) ======== */}
       <mesh position={[0, midY, -D/2 - 0.15]}>
         <boxGeometry args={[W + 0.5, totalH, 0.5]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        <meshStandardMaterial color="#2a3548" roughness={0.6} metalness={0.4} />
       </mesh>
 
       {/* ======== HORIZONTAL BEAMS at key floor levels ======== */}
@@ -563,11 +563,11 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
           <group key={`beam-${fn}`} position={[0, y, 0]}>
             <mesh position={[0, 0, D/2 + 0.08]}>
               <boxGeometry args={[W + 0.6, 0.12, 0.12]} />
-              <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+              <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
             </mesh>
             <mesh position={[0, 0, -D/2 - 0.15]}>
               <boxGeometry args={[W + 0.6, 0.12, 0.12]} />
-              <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+              <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
             </mesh>
           </group>
         );
@@ -582,7 +582,7 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       {/* ======== ANTENNA ======== */}
       <mesh position={[0, totalH + 4, 0]}>
         <cylinderGeometry args={[0.25, 0.7, 6, 8]} />
-        <meshStandardMaterial color="#475569" metalness={0.9} roughness={0.1} />
+        <meshStandardMaterial color="#6b8299" metalness={0.9} roughness={0.1} />
       </mesh>
       <mesh position={[0, totalH + 7.5, 0]}>
         <sphereGeometry args={[0.35, 8, 6]} />
@@ -598,18 +598,18 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       {/* Podium accent band */}
       <mesh position={[0, -0.1, D/2 + 5]}>
         <boxGeometry args={[W + 8, 0.12, 0.12]} />
-        <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+        <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
       </mesh>
 
       {/* ======== ENTRANCE ======== */}
       <mesh position={[0, 2.5, D/2 + 4]}>
         <boxGeometry args={[8, 0.15, 6]} />
-        <meshStandardMaterial color="#475569" metalness={0.8} roughness={0.2} />
+        <meshStandardMaterial color="#6b8299" metalness={0.8} roughness={0.2} />
       </mesh>
       {[-3.5, 3.5].map((cx, i) => (
         <mesh key={`encol-${i}`} position={[cx, 1.3, D/2 + 4]}>
           <cylinderGeometry args={[0.15, 0.15, 2.4, 6]} />
-          <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+          <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
         </mesh>
       ))}
       {/* Entrance doors */}
@@ -620,7 +620,7 @@ export const BuildingShell: React.FC<BuildingShellProps> = ({ totalFloors, selec
       {/* Door frame */}
       <mesh position={[0, 1.5, D/2 + 0.79]}>
         <boxGeometry args={[3.2, 3.1, 0.04]} />
-        <meshStandardMaterial color="#475569" metalness={0.85} roughness={0.15} />
+        <meshStandardMaterial color="#6b8299" metalness={0.85} roughness={0.15} />
       </mesh>
 
       {/* ======== BUILDING NAME LIGHT ======== */}

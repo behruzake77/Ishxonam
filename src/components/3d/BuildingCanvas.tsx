@@ -351,15 +351,15 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
             gl.shadowMap.enabled = true;
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
           }
-          scene.background = new THREE.Color('#020617');
-          scene.fog = new THREE.FogExp2('#020617', 0.002);
+          scene.background = new THREE.Color('#091830');
+          scene.fog = new THREE.FogExp2('#0b1e35', 0.001);
         }}
       >
         <Suspense fallback={null}>
           {/* Lights */}
-          <ambientLight color="#1e293b" intensity={1.5} />
-          <directionalLight color="#fffbeb" intensity={3.5} position={[100, 350, 100]} castShadow={!isMob} />
-          <pointLight color="#06b6d4" intensity={5} distance={200} position={[0, 200, 0]} />
+          <ambientLight color="#334466" intensity={2.2} />
+          <directionalLight color="#fff8e7" intensity={5} position={[100, 350, 100]} castShadow={!isMob} />
+          <pointLight color="#06b6d4" intensity={12} distance={350} position={[0, 200, 0]} />
 
           {/* OrbitControls */}
           <OrbitControls
