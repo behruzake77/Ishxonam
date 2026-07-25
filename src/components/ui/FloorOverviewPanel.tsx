@@ -26,6 +26,7 @@ interface FloorOverviewPanelProps {
   onSelectAgent: (agentId: string) => void;
   onOpenDeployAgent: () => void;
   onOpenAssignTask: () => void;
+  isMobile?: boolean;
 }
 
 export const FloorOverviewPanel: React.FC<FloorOverviewPanelProps> = ({
@@ -33,7 +34,8 @@ export const FloorOverviewPanel: React.FC<FloorOverviewPanelProps> = ({
   selectedAgentId,
   onSelectAgent,
   onOpenDeployAgent,
-  onOpenAssignTask
+  onOpenAssignTask,
+  isMobile = false
 }) => {
   const dept = getDepartmentByFloor(floor.id);
 
@@ -48,6 +50,132 @@ export const FloorOverviewPanel: React.FC<FloorOverviewPanelProps> = ({
     }
   };
 
+  // Mobile: render as inline content for bottom drawer
+  if (isMobile) {
+    return (
+      <div className="w-full flex flex-col overflow-hidden">
+        {/* Header Banner for Floor - compact */}
+        <div 
+          className="px-3 py-2 border-b border-blue-500/20"
+          style={{ background: `linear-gradient(135deg, ${dept.color}15 0%, rgba(15, 23, 42, 0.9) 100%)` }}
+        >
+          <div className="flex items-center justify-between mb-0.5">
+            <span 
+              className="px-1.5 py-0.5 rounded-md text-[8px] font-mono font-black tracking-wider uppercase border"
+              style={{ color: dept.color, borderColor: `${dept.color}40`, backgroundColor: `${dept.color}15` }}
+            >
+              {dept.name}
+            </span>
+            <span className="text-[9px] font-mono text-blue-400">{floor.code}</span>
+          </div>
+
+          <h2 className="text-base font-black text-white flex items-center gap-1.5">
+            Floor {floor.id}
+            <span className="text-[10px] font-normal text-blue-400">({floor.agents.length} nodes)</span>
+          </h2>
+
+          {/* Energy & Process Stats - compact */}
+          <div className="flex items-center gap-3 mt-1.5 text-[9px] font-mono">
+            <span className="flex items-center gap-1 text-blue-300">
+              <Zap className="w-3 h-3 text-amber-400" />
+              {floor.energyUsageKW} kW
+            </span>
+            <span className="flex items-center gap-1 text-blue-300">
+              <Activity className="w-3 h-3 text-cyan-400" />
+              {floor.activeProcesses} threads
+            </span>
+          </div>
+        </div>
+
+        {/* Worker List for Floor - compact cards */}
+        <div className="overflow-y-auto mobile-no-scrollbar p-2 space-y-2">
+          <div className="flex items-center justify-between text-[9px] font-mono text-blue-400 mb-1 px-1">
+            <span>COGNITIVE NODES ({floor.agents.length})</span>
+            <span className="text-emerald-400 font-bold animate-pulse">● LIVE</span>
+          </div>
+
+          {floor.agents.map((agent) => {
+            const isSelected = selectedAgentId === agent.id;
+            const sc = getStatusColor(agent.status);
+            return (
+              <div
+                key={agent.id}
+                onClick={() => {
+                  onSelectAgent(agent.id);
+                  soundManager.playClick();
+                }}
+                className={`p-2 rounded-xl border transition-all cursor-pointer active:scale-[0.98] ${
+                  isSelected
+                    ? 'bg-blue-500/10 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
+                    : 'bg-slate-900/50 border-blue-900/40 hover:border-blue-500/30 active:bg-slate-900/70'
+                }`}
+              >
+                {/* Agent Header - compact */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${sc}-400 opacity-75`} />
+                      <span className={`relative inline-flex rounded-full h-2 w-2 bg-${sc}-500`} />
+                    </span>
+                    <span className="text-[11px] font-bold text-white tracking-wide">{agent.name}</span>
+                  </div>
+                  <span className={`px-1 py-0.5 rounded text-[7px] font-mono border font-bold bg-${sc}-500/10 border-${sc}-500/20 text-${sc}-400`}>
+                    {agent.status.replace('_', ' ').toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Specs - compact inline */}
+                <div className="flex items-center gap-2 my-1.5 text-[9px] font-mono">
+                  <span className="text-blue-200">CPU <strong className="text-white">{agent.cpuLoad}%</strong></span>
+                  <span className="text-blue-200">MEM <strong className="text-white">{agent.memoryUsage}%</strong></span>
+                  <span className="text-cyan-300 font-bold">{agent.aiModel}</span>
+                </div>
+
+                {/* Task Progress - compact */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-0.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-300"
+                      style={{ width: `${agent.currentTask.progress}%` }}
+                    />
+                  </div>
+                  <span className="text-[8px] font-mono text-cyan-400 font-bold">{agent.currentTask.progress}%</span>
+                </div>
+
+                {/* Speech Bubble */}
+                {agent.speechBubble && (
+                  <div className="mt-1 p-1 rounded bg-slate-950 border border-blue-500/20 text-[8px] text-blue-200 flex items-center gap-1 font-mono italic">
+                    <MessageSquare className="w-2.5 h-2.5 text-cyan-400 shrink-0" />
+                    <span className="truncate">"{agent.speechBubble}"</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Action Footer Buttons - compact */}
+        <div className="p-2 border-t border-blue-500/20 bg-slate-950 grid grid-cols-2 gap-2 safe-bottom">
+          <button
+            onClick={() => { onOpenDeployAgent(); soundManager.playClick(); }}
+            className="px-2 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 active:bg-cyan-500/30 text-[10px] font-mono font-bold flex items-center justify-center gap-1 transition-all mobile-tap"
+          >
+            <PlusCircle className="w-3 h-3" />
+            Deploy
+          </button>
+          <button
+            onClick={() => { onOpenAssignTask(); soundManager.playClick(); }}
+            className="px-2 py-2 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-300 active:bg-blue-500/30 text-[10px] font-mono font-bold flex items-center justify-center gap-1 transition-all mobile-tap"
+          >
+            <PlayCircle className="w-3 h-3" />
+            Task
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop version (original)
   return (
     <aside className="w-80 h-full bg-slate-950/80 border-l border-blue-500/30 backdrop-blur-2xl flex flex-col z-30 select-none overflow-hidden shadow-[-4px_0_30px_rgba(0,0,0,0.5)]">
       {/* Header Banner for Floor */}
@@ -213,3 +341,4 @@ export const FloorOverviewPanel: React.FC<FloorOverviewPanelProps> = ({
   );
 };
 
+export default FloorOverviewPanel;

@@ -57,7 +57,7 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
             onSelectFloor(targetFloor); 
             soundManager.playFloorChime(targetFloor); 
           }}
-          className="px-3 py-1.5 rounded-xl bg-red-950/30 border border-red-500/30 hover:border-red-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner"
+          className="px-3 py-1.5 rounded-xl bg-red-950/30 border border-red-500/30 hover:border-red-500/60 active:border-red-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner mobile-tap"
         >
           <div className="flex items-center gap-2 min-w-0">
             <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse shrink-0" />
@@ -74,7 +74,7 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
         {/* 2. Compute Capacity */}
         <div 
           onClick={() => { onSelectFloor(85); soundManager.playFloorChime(85); }}
-          className="px-3 py-1.5 rounded-xl bg-purple-950/30 border border-purple-500/30 hover:border-purple-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner"
+          className="px-3 py-1.5 rounded-xl bg-purple-950/30 border border-purple-500/30 hover:border-purple-500/60 active:border-purple-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner mobile-tap"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Users className="w-4 h-4 text-purple-400 shrink-0" />
@@ -91,7 +91,7 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
         {/* 3. Token Generation */}
         <div 
           onClick={() => { onSelectFloor(65); soundManager.playFloorChime(65); }}
-          className="px-3 py-1.5 rounded-xl bg-amber-950/30 border border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner"
+          className="px-3 py-1.5 rounded-xl bg-amber-950/30 border border-amber-500/30 hover:border-amber-500/60 active:border-amber-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner mobile-tap"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Clock className="w-4 h-4 text-amber-400 shrink-0" />
@@ -112,7 +112,7 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
             onSelectFloor(targetFloor); 
             soundManager.playFloorChime(targetFloor); 
           }}
-          className="px-3 py-1.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 hover:border-cyan-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner"
+          className="px-3 py-1.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 hover:border-cyan-500/60 active:border-cyan-500/60 transition-all cursor-pointer flex items-center justify-between group shadow-inner mobile-tap"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -138,28 +138,28 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
         <div className="flex items-center gap-1.5">
           <button 
             onClick={() => { if (onOpenDeploy) { onOpenDeploy(); soundManager.playClick(); } }}
-            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white hover:bg-blue-900/30 transition-all"
+            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white active:text-white active:bg-blue-900/30 hover:bg-blue-900/30 transition-all mobile-tap"
             title="Deploy new virtual worker process"
           >
             /deploy
           </button>
           <button 
             onClick={() => { if (onOpenAssign) { onOpenAssign(); soundManager.playClick(); } }}
-            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white hover:bg-blue-900/30 transition-all"
+            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white active:text-white active:bg-blue-900/30 hover:bg-blue-900/30 transition-all mobile-tap"
             title="Inject cognitive instructions"
           >
             /task
           </button>
           <button 
             onClick={() => { if (onOpenSearch) { onOpenSearch(); soundManager.playClick(); } }}
-            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white hover:bg-blue-900/30 transition-all"
+            className="px-2 py-1 rounded bg-blue-950/40 border border-blue-500/20 text-blue-300 hover:text-white active:text-white active:bg-blue-900/30 hover:bg-blue-900/30 transition-all mobile-tap"
             title="Quick agent database lookup"
           >
             /find
           </button>
           <button 
             onClick={() => { if (onOpenCEOControls) { onOpenCEOControls(); soundManager.playClick(); } }}
-            className="px-2 py-1 rounded bg-amber-950/30 border border-amber-500/20 text-amber-400 hover:text-white hover:bg-amber-900/20 transition-all"
+            className="px-2 py-1 rounded bg-amber-950/30 border border-amber-500/20 text-amber-400 hover:text-white active:text-white active:bg-amber-900/20 hover:bg-amber-900/20 transition-all mobile-tap"
             title="Access root authority controls"
           >
             /sys_ctl
@@ -170,3 +170,4 @@ export const SystemHUD: React.FC<SystemHUDProps> = ({
   );
 };
 
+export default SystemHUD;
