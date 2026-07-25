@@ -40,6 +40,13 @@ const CameraCtrl: React.FC<CameraCtrlProps> = ({
   const targetLook = useRef(new THREE.Vector3(0, 200, 0));
   const prevPreset = useRef(cameraPreset);
   const prevFloor = useRef(selectedFloorId);
+  const initialized = useRef(false);
+
+  // Set initial controls target on first frame
+  if (!initialized.current && controlsRef.current) {
+    controlsRef.current.target.set(0, 200, 0);
+    initialized.current = true;
+  }
 
   // Update targets when preset/floor changes
   if (prevPreset.current !== cameraPreset || prevFloor.current !== selectedFloorId) {
@@ -337,12 +344,12 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
           {/* ======== ORBIT CONTROLS ======== */}
           <OrbitControls
             ref={controlsRef}
+            makeDefault
             enableDamping
             dampingFactor={0.05}
             maxPolarAngle={Math.PI / 2 + 0.05}
             minDistance={15}
             maxDistance={500}
-            target={[0, 200, 0]}
           />
 
           {/* ======== CAMERA CONTROLLER ======== */}
