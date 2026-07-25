@@ -33,6 +33,14 @@ import { NotificationToastContainer } from './components/ui/NotificationToastCon
 import { soundManager } from './utils/audio';
 import { modelRouter } from './utils/modelRouter';
 
+// Mobile breakpoint helper
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+};
+
+type MobilePanel = 'overview' | 'comms' | null;
+
 export const App: React.FC = () => {
   // Primary State
   const [floors, setFloors] = useState<Floor[]>(INITIAL_FLOORS);
@@ -57,6 +65,21 @@ export const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isDeployModalOpen, setIsDeployModalOpen] = useState<boolean>(false);
   const [isAssignTaskModalOpen, setIsAssignTaskModalOpen] = useState<boolean>(false);
+
+  // Mobile Panel State (bottom drawer tabs)
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
+  const [isMobileView, setIsMobileView] = useState<boolean>(isMobile());
+
+  // Track viewport changes for responsive mode switching
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(isMobile());
+      // Auto-close mobile panel if switching to desktop
+      if (!isMobile()) setMobilePanel(null);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Currently focused floor object
   const currentFloor = floors.find(f => f.id === selectedFloorId) || floors[0];
@@ -150,13 +173,11 @@ export const App: React.FC = () => {
                   severity: 'warn',
                   source: 'ModelRouter'
                 });
-                // Provider Failover toast notification is disabled (runs silently in background)
               }
             }
 
             // State Transitions
             if (chance < 0.15) {
-              // Walk to Meeting
               const meetingWp = waypoints.find((w: WaypointNode) => w.type === 'meeting') || waypoints[0];
               return {
                 ...agent,
@@ -168,7 +189,6 @@ export const App: React.FC = () => {
                 currentTask: { ...agent.currentTask, progress: newProgress }
               };
             } else if (chance < 0.3) {
-              // Walk to Bio-Coffee Lounge
               const loungeWp = waypoints.find((w: WaypointNode) => w.type === 'lounge') || waypoints[0];
               return {
                 ...agent,
@@ -180,7 +200,6 @@ export const App: React.FC = () => {
                 currentTask: { ...agent.currentTask, progress: newProgress }
               };
             } else if (chance < 0.5) {
-              // Return to Workstation Desk
               const deskWp = waypoints[Math.floor(Math.random() * 4)] || waypoints[0];
               return {
                 ...agent,
@@ -216,7 +235,6 @@ export const App: React.FC = () => {
           const delta = targetY - car.posY;
 
           if (Math.abs(delta) < 1.0) {
-            // Reached target, pick new random floor between 1 and 100
             nextTarget = Math.floor(Math.random() * 99) + 1;
             soundManager.playFloorChime(car.targetFloor);
           } else {
@@ -334,6 +352,184 @@ export const App: React.FC = () => {
     }));
   };
 
+  // Toggle mobile panel
+  const toggleMobilePanel = useCallback((panel: MobilePanel) => {
+    setMobilePanel(prev => prev === panel ? null : panel);
+  }, []);
+
+  const closeMobilePanel = useCallback(() => {
+    setMobilePanel(null);
+  }, []);
+
+  // ==================== MOBILE LAYOUT ====================
+  if (isMobileView) {
+    return (
+      <div className="w-screen h-[100dvh] bg-gray-950 text-white flex flex-col overflow-hidden select-none font-sans relative">
+        {/* 1. Mobile Compact Header */}
+        <CEOHeader 
+          selectedFloorId={selectedFloorId}
+          onSelectFloor={handleSelectFloor}
+          cameraPreset={cameraPreset}
+          onSelectCameraPreset={setCameraPreset}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenCEOControls={() => setIsCEOControlsOpen(true)}
+          metrics={metrics}
+        />
+
+        {/* 2. Main 3D Canvas (takes most space on mobile) */}
+        <div className="flex-1 relative overflow-hidden">
+          <BuildingCanvas 
+            floors={floors}
+            selectedFloorId={selectedFloorId}
+            selectedAgentId={selectedAgentId}
+            cameraPreset={cameraPreset}
+            elevators={elevators}
+            graphicsQuality={ceoSettings.graphicsQuality || 'low'}
+            onSelectFloor={handleSelectFloor}
+            onSelectAgent={(agentId) => handleSelectAgent(agentId)}
+          />
+        </div>
+
+        {/* 3. Mobile Bottom Navigation Tabs */}
+        <div className="bg-slate-950/95 border-t border-blue-500/30 backdrop-blur-xl flex items-center justify-around px-2 py-1 z-40 safe-bottom">
+          {[
+            { id: 'overview' as MobilePanel, label: 'Floor', icon: '🏢' },
+            { id: 'comms' as MobilePanel, label: 'Network', icon: '📡' },
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => toggleMobilePanel(item.id)}
+              className={`flex-1 flex flex-col items-center justify-center py-2 rounded-xl transition-all mobile-tap ${
+                mobilePanel === item.id
+                  ? 'text-cyan-300 bg-blue-500/20'
+                  : 'text-blue-400/70 active:text-cyan-300 active:bg-blue-500/10'
+              }`}
+            >
+              <span className="text-lg">{item.icon}</span>
+              <span className="text-[10px] font-mono font-bold">{item.label}</span>
+            </button>
+          ))}
+          <button
+            onClick={() => { setIsSearchOpen(true); soundManager.playClick(); }}
+            className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl text-blue-400/70 active:text-cyan-300 active:bg-blue-500/10 transition-all mobile-tap"
+          >
+            <span className="text-lg">🔍</span>
+            <span className="text-[10px] font-mono font-bold">Search</span>
+          </button>
+          <button
+            onClick={() => { setIsCEOControlsOpen(true); soundManager.playClick(); }}
+            className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl text-amber-400/70 active:text-amber-300 active:bg-amber-500/10 transition-all mobile-tap"
+          >
+            <span className="text-lg">⚙️</span>
+            <span className="text-[10px] font-mono font-bold">CEO</span>
+          </button>
+        </div>
+
+        {/* 4. Mobile Bottom Sheet Panel (Drawer) */}
+        {mobilePanel === 'overview' && (
+          <div className="absolute bottom-0 left-0 right-0 z-50 animate-slideUp">
+            {/* Swipe indicator */}
+            <div className="bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl max-h-[60dvh] flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+              {/* Drag handle */}
+              <div 
+                className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing"
+                onClick={closeMobilePanel}
+              >
+                <div className="w-10 h-1.5 rounded-full bg-blue-500/40" />
+              </div>
+              
+              {/* Floor Overview - scrollable content */}
+              <div className="flex-1 overflow-y-auto mobile-no-scrollbar">
+                <FloorOverviewPanel 
+                  floor={currentFloor}
+                  selectedAgentId={selectedAgentId}
+                  onSelectAgent={(agentId) => handleSelectAgent(agentId)}
+                  onOpenDeployAgent={() => setIsDeployModalOpen(true)}
+                  onOpenAssignTask={() => setIsAssignTaskModalOpen(true)}
+                  isMobile={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {mobilePanel === 'comms' && (
+          <div className="absolute bottom-0 left-0 right-0 z-50 animate-slideUp">
+            <div className="bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl max-h-[60dvh] flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+              {/* Drag handle */}
+              <div 
+                className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing"
+                onClick={closeMobilePanel}
+              >
+                <div className="w-10 h-1.5 rounded-full bg-blue-500/40" />
+              </div>
+
+              {/* InterAgent Comm Panel - scrollable content */}
+              <div className="flex-1 overflow-y-auto mobile-no-scrollbar">
+                <InterAgentCommPanel 
+                  messages={messages}
+                  metrics={metrics}
+                  ceoSettings={ceoSettings}
+                  onOpenCEOControls={() => setIsCEOControlsOpen(true)}
+                  isMobile={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. Modals (full-screen on mobile) */}
+        {isCEOControlsOpen && (
+          <CEOControlCenterModal 
+            settings={ceoSettings}
+            onUpdateSettings={setCeoSettings}
+            onClose={() => setIsCEOControlsOpen(false)}
+          />
+        )}
+
+        {currentAgent && (
+          <AgentDetailModal 
+            agent={currentAgent}
+            floor={floors.find(f => f.id === currentAgent!.floorId) || currentFloor}
+            onClose={() => setSelectedAgentId(null)}
+            onUpdateAgentStatus={(agentId, newStatus) => {
+              setFloors(prev => prev.map(f => ({
+                ...f,
+                agents: f.agents.map(a => a.id === agentId ? { ...a, status: newStatus } : a)
+              })));
+            }}
+          />
+        )}
+
+        {isDeployModalOpen && (
+          <DeployAgentModal 
+            floor={currentFloor}
+            onDeploy={handleDeployAgent}
+            onClose={() => setIsDeployModalOpen(false)}
+          />
+        )}
+
+        {isAssignTaskModalOpen && (
+          <AssignTaskModal 
+            floor={currentFloor}
+            onAssign={handleAssignTask}
+            onClose={() => setIsAssignTaskModalOpen(false)}
+          />
+        )}
+
+        {isSearchOpen && (
+          <SearchModal 
+            floors={floors}
+            onSelectFloor={handleSelectFloor}
+            onSelectAgent={handleSelectAgent}
+            onClose={() => setIsSearchOpen(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ==================== DESKTOP LAYOUT (original) ====================
   return (
     <div className="w-screen h-screen bg-gray-950 text-white flex flex-col overflow-hidden select-none font-sans relative">
       {/* 1. CEO Top Header Bar */}

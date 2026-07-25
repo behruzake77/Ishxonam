@@ -111,7 +111,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
             <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-950 rounded-full animate-ping" />
             <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-950 rounded-full" />
           </div>
-          <div className="text-left leading-none">
+          <div className="text-left leading-none hidden md:block">
             <div className="text-xs font-bold text-blue-100 flex items-center gap-1">
               B. Ismatullayev
               <span className="text-[8px] bg-amber-400/20 text-amber-300 border border-amber-500/30 px-1 rounded font-extrabold uppercase">
@@ -148,7 +148,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
                   onSelectFloor(f);
                   soundManager.playFloorChime(f);
                 }}
-                className={`px-1.5 py-0.5 rounded transition-all ${
+                className={`px-1.5 py-0.5 rounded transition-all mobile-tap ${
                   selectedFloorId === f 
                     ? 'bg-cyan-500 text-slate-950 font-bold shadow-[0_0_8px_rgba(6,182,212,0.4)]' 
                     : 'bg-slate-800 text-blue-300 hover:text-cyan-300 hover:bg-slate-700'
@@ -160,8 +160,8 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
           </div>
         </div>
 
-        {/* Connected AI Providers status pills */}
-        <div className="flex items-center gap-1.5 bg-slate-900/50 px-3 py-1.5 rounded-xl border border-blue-900/40 overflow-x-auto max-w-full scrollbar-none">
+        {/* Connected AI Providers status pills - hidden on small mobile */}
+        <div className="hidden md:flex items-center gap-1.5 bg-slate-900/50 px-3 py-1.5 rounded-xl border border-blue-900/40 overflow-x-auto max-w-full scrollbar-none">
           <span className="text-[8px] font-mono text-blue-400 tracking-wider uppercase mr-1 flex items-center gap-1 shrink-0">
             <Wifi className="w-3 h-3 text-cyan-400 animate-pulse" /> PROVIDERS:
           </span>
@@ -180,7 +180,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
 
       {/* Right Segment: Active metrics, Camera Presets, and System Controls */}
       <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-        {/* Core Live Stats (Pills) */}
+        {/* Core Live Stats (Pills) - hidden on small mobile */}
         <div className="hidden sm:flex items-center gap-2 font-mono">
           <div className="px-2.5 py-1 rounded-xl bg-blue-950/30 border border-blue-500/20 text-center">
             <div className="text-[8px] text-blue-400">ACTIVE AGENTS</div>
@@ -209,7 +209,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
             <button
               key={preset}
               onClick={() => { onSelectCameraPreset(preset as CameraPreset); soundManager.playClick(); }}
-              className={`px-2 py-1 rounded-lg text-[10px] font-mono flex items-center gap-1 transition-all ${
+              className={`px-2 py-1 rounded-lg text-[10px] font-mono flex items-center gap-1 transition-all mobile-tap ${
                 cameraPreset === preset 
                   ? 'bg-blue-500/25 text-cyan-300 border border-blue-400/40 shadow-[0_0_10px_rgba(59,130,246,0.15)] font-bold' 
                   : 'text-blue-300/70 hover:text-white hover:bg-slate-800'
@@ -224,7 +224,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
         {/* CEO Controls */}
         <button
           onClick={() => { onOpenCEOControls(); soundManager.playClick(); }}
-          className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all active:scale-95 shrink-0"
+          className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all active:scale-95 shrink-0 mobile-tap"
           title="CEO Control Panel"
         >
           <SlidersHorizontal className="w-4 h-4 text-amber-400" />
@@ -234,7 +234,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
         {/* Search */}
         <button
           onClick={() => { onOpenSearch(); soundManager.playClick(); }}
-          className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-900 border border-blue-900/60 text-blue-300 hover:text-white hover:border-blue-500/40 transition-all shrink-0"
+          className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-900 border border-blue-900/60 text-blue-300 hover:text-white hover:border-blue-500/40 transition-all shrink-0 mobile-tap"
           title="Search Agent/Floor"
         >
           <Search className="w-4 h-4" />
@@ -243,7 +243,7 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
         {/* Global Sound Toggle */}
         <button
           onClick={handleSoundToggle}
-          className="p-2 rounded-xl bg-slate-900 border border-blue-900/60 text-blue-300 hover:text-cyan-300 transition-all shrink-0"
+          className="p-2 rounded-xl bg-slate-900 border border-blue-900/60 text-blue-300 hover:text-cyan-300 transition-all shrink-0 mobile-tap"
           title={isMuted ? 'Unmute HUD Audio' : 'Mute HUD Audio'}
         >
           {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
@@ -264,4 +264,3 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
 };
 
 export default CEOHeader;
-

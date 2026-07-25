@@ -39,21 +39,21 @@ export const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4 select-none animate-fadeIn">
-      <div className="w-full max-w-md bg-gray-950 border border-blue-500/30 rounded-2xl shadow-2xl overflow-hidden font-sans">
-        <div className="p-4 border-b border-blue-500/20 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-blue-400 font-bold">
+    <div className="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4 select-none animate-fadeIn">
+      <div className="w-full max-w-md h-full sm:h-auto sm:max-h-[90vh] bg-gray-950 border border-blue-500/30 rounded-none sm:rounded-2xl shadow-2xl overflow-hidden font-sans">
+        <div className="p-3 sm:p-4 border-b border-blue-500/20 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
             <PlayCircle className="w-5 h-5" />
-            Dispatch High-Priority Task (Floor {floor.id})
+            Dispatch Task (Floor {floor.id})
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-900 text-gray-400">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-900 text-gray-400 active:bg-gray-800 mobile-tap">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs font-mono">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-5 space-y-3 sm:space-y-4 text-xs font-mono overflow-y-auto custom-scrollbar">
           <div>
-            <label className="block text-gray-400 mb-1">TASK DIRECTIVE TITLE</label>
+            <label className="block text-gray-400 mb-1 text-[10px]">TASK DIRECTIVE TITLE</label>
             <input 
               type="text" 
               required
@@ -65,14 +65,14 @@ export const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-gray-400 mb-1">PRIORITY LEVEL</label>
+            <label className="block text-gray-400 mb-1 text-[10px]">PRIORITY LEVEL</label>
             <div className="grid grid-cols-4 gap-2">
               {(['NORMAL', 'HIGH', 'URGENT', 'CRITICAL'] as const).map(p => (
                 <button
                   type="button"
                   key={p}
                   onClick={() => setPriority(p)}
-                  className={`p-2 rounded-xl border text-center text-[10px] font-bold transition-all ${
+                  className={`p-2 rounded-xl border text-center text-[10px] font-bold transition-all mobile-tap ${
                     priority === p ? 'bg-blue-500/20 border-blue-400 text-blue-300' : 'bg-gray-900 border-gray-800 text-gray-400'
                   }`}
                 >
@@ -83,7 +83,7 @@ export const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-gray-400 mb-1">ESTIMATED COMPLETION ETA</label>
+            <label className="block text-gray-400 mb-1 text-[10px]">ESTIMATED COMPLETION ETA</label>
             <input 
               type="text" 
               value={eta}
@@ -92,19 +92,19 @@ export const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             />
           </div>
 
-          <div className="pt-2 flex justify-end gap-2">
+          <div className="pt-2 flex justify-end gap-2 safe-bottom">
             <button 
               type="button" 
               onClick={onClose} 
-              className="px-4 py-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400"
+              className="px-4 py-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 mobile-tap"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="px-4 py-2 rounded-xl bg-blue-500 text-gray-950 font-bold hover:brightness-110"
+              className="px-4 py-2 rounded-xl bg-blue-500 text-gray-950 font-bold hover:brightness-110 active:brightness-90 mobile-tap"
             >
-              Dispatch Task Now
+              Dispatch Task
             </button>
           </div>
         </form>
@@ -112,3 +112,5 @@ export const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
     </div>
   );
 };
+
+export default AssignTaskModal;
