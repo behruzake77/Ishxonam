@@ -114,3 +114,34 @@
     min-width: 44px;
   }
 }
+
+/* Mobile app container - fallback for browsers without dvh support */
+.mobile-app-container {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* Modern browsers: accounts for mobile address bar */
+}
+
+@media (max-width: 768px) {
+  .mobile-app-container {
+    /* Ensure no overflow from address bar shifting */
+    position: fixed;
+    inset: 0;
+  }
+}
+
+/* Mobile bottom drawer */
+.mobile-drawer {
+  max-height: 60vh;
+  max-height: 60dvh;
+}
+
+/* Prevent body scroll on mobile when drawer is open */
+@media (max-width: 768px) {
+  body {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+  }
+}

@@ -364,7 +364,7 @@ export const App: React.FC = () => {
   // ==================== MOBILE LAYOUT ====================
   if (isMobileView) {
     return (
-      <div className="w-screen h-[100dvh] bg-gray-950 text-white flex flex-col overflow-hidden select-none font-sans relative">
+      <div className="mobile-app-container bg-gray-950 text-white flex flex-col overflow-hidden select-none font-sans relative">
         {/* 1. Mobile Compact Header */}
         <CEOHeader 
           selectedFloorId={selectedFloorId}
@@ -376,8 +376,8 @@ export const App: React.FC = () => {
           metrics={metrics}
         />
 
-        {/* 2. Main 3D Canvas (takes most space on mobile) */}
-        <div className="flex-1 relative overflow-hidden">
+        {/* 2. Main 3D Canvas (takes most space on mobile - must have explicit min-height) */}
+        <div className="flex-1 relative overflow-hidden min-h-[200px]">
           <BuildingCanvas 
             floors={floors}
             selectedFloorId={selectedFloorId}
@@ -429,7 +429,7 @@ export const App: React.FC = () => {
         {mobilePanel === 'overview' && (
           <div className="absolute bottom-0 left-0 right-0 z-50 animate-slideUp">
             {/* Swipe indicator */}
-            <div className="bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl max-h-[60dvh] flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+            <div className="mobile-drawer bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
               {/* Drag handle */}
               <div 
                 className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing"
@@ -455,7 +455,7 @@ export const App: React.FC = () => {
 
         {mobilePanel === 'comms' && (
           <div className="absolute bottom-0 left-0 right-0 z-50 animate-slideUp">
-            <div className="bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl max-h-[60dvh] flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+            <div className="mobile-drawer bg-slate-950/95 backdrop-blur-2xl border-t border-blue-500/40 rounded-t-2xl flex flex-col overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
               {/* Drag handle */}
               <div 
                 className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing"

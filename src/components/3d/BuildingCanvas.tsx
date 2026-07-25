@@ -43,6 +43,9 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
   const controlsRef = useRef<OrbitControls | null>(null);
   const composerRef = useRef<EffectComposer | null>(null);
 
+  // WebGL support check state
+  const [webglError, setWebglError] = useState<string | null>(null);
+
   // References to 3D objects for dynamic animation
   const elevatorMeshGroupRef = useRef<THREE.Group>(new THREE.Group());
   const floorNumbersGroupRef = useRef<THREE.Group>(new THREE.Group());
@@ -298,9 +301,18 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
   useEffect(() => {
     if (!mountRef.current) return;
 
+    // Check WebGL support before proceeding
+    const testCanvas = document.createElement('canvas');
+    const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+    if (!gl) {
+      setWebglError('Your device does not support WebGL. The 3D building view requires a modern browser with WebGL support.');
+      return;
+    }
+    testCanvas.remove();
+
     const isMobile = isMobileDevice();
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight;
+    const width = mountRef.current.clientWidth || 300;  // Fallback width
+    const height = mountRef.current.clientHeight || 400; // Fallback height
 
     // Scene Setup
     const scene = new THREE.Scene();
@@ -887,6 +899,25 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
       targetCamLookRef.current.set(0, yPos, 0);
     }
   }, [selectedFloorId, cameraPreset]);
+
+  // WebGL Error Fallback
+  if (webglError) {
+    return (
+      <div className="relative w-full h-full bg-gray-950 flex items-center justify-center p-6">
+        <div className="max-w-sm text-center space-y-4">
+          <div className="text-4xl">🏗️</div>
+          <h2 className="text-lg font-bold text-cyan-300">3D Renderer Not Available</h2>
+          <p className="text-xs text-blue-200/70 font-mono leading-relaxed">{webglError}</p>
+          <p className="text-[10px] text-gray-500 font-mono">Try updating your browser or using Chrome/Firefox.</p>
+          <div className="p-3 rounded-xl bg-slate-900/60 border border-blue-500/20 text-xs font-mono space-y-1">
+            <div className="text-cyan-400 font-bold">Floor {selectedFloorId} — Quick Info</div>
+            <div className="text-blue-200">Select floors using the navigation above.</div>
+            <div className="text-emerald-400">All agent monitoring features still work!</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={mountRef} className="relative w-full h-full cursor-grab active:cursor-grabbing select-none font-sans">
