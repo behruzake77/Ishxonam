@@ -5,6 +5,9 @@ import * as THREE from 'three';
 import { Floor, ElevatorCar, CameraPreset } from '../../types/office';
 import { OfficeFloor, HumanFigure, BuildingShell } from './office/OfficeComponents';
 
+// Floor height constant — must match OfficeComponents.tsx FLOOR_H
+const FLOOR_H = 4;
+
 interface BuildingCanvasProps {
   floors: Floor[];
   selectedFloorId: number;
@@ -21,8 +24,7 @@ const isMobileDevice = () => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 };
 
-// ===== Camera Controller (R3F inner component) =====
-// Handles smooth camera transitions and CEO walk mode via useFrame
+// ===== Camera Controller (R3F) =====
 interface CameraCtrlProps {
   cameraPreset: CameraPreset;
   selectedFloorId: number;
@@ -50,7 +52,7 @@ const CameraCtrl: React.FC<CameraCtrlProps> = ({
 
   // Update targets when preset/floor changes
   if (prevPreset.current !== cameraPreset || prevFloor.current !== selectedFloorId) {
-    const yBase = (selectedFloorId - 1) * 4 + 2;
+    const yBase = (selectedFloorId - 1) * FLOOR_H + 2;
     if (cameraPreset === 'full_skyscraper') {
       targetPos.current.set(50, 200, 80);
       targetLook.current.set(0, 200, 0);
@@ -75,7 +77,7 @@ const CameraCtrl: React.FC<CameraCtrlProps> = ({
 
     if (cameraPreset === 'ceo_walk') {
       controlsRef.current.enabled = false;
-      const floorY = (selectedFloorId - 1) * 4 + 2 + 0.01;
+      const floorY = (selectedFloorId - 1) * FLOOR_H + 2 + 0.01;
 
       let dx = 0, dz = 0;
       const speed = 0.25;
@@ -87,7 +89,7 @@ const CameraCtrl: React.FC<CameraCtrlProps> = ({
       dx += joystickRef.current.x * speed;
       dz += joystickRef.current.z * speed;
 
-      ceoPosRef.current.x = Math.max(-9, Math.min(9, ceoPosRef.current.x + dx));
+      ceoPosRef.current.x = Math.max(-10, Math.min(10, ceoPosRef.current.x + dx));
       ceoPosRef.current.z = Math.max(-6, Math.min(6, ceoPosRef.current.z + dz));
       ceoPosRef.current.y = floorY;
 
@@ -109,8 +111,7 @@ const CameraCtrl: React.FC<CameraCtrlProps> = ({
   return null;
 };
 
-// ===== CEO Walker (R3F inner component) =====
-// CEO avatar that dynamically updates position every frame
+// ===== CEO Walker (R3F) — realistic body with capsule/cylinder =====
 interface CEOWalkerProps {
   ceoPosRef: React.MutableRefObject<THREE.Vector3>;
   visible: boolean;
@@ -130,49 +131,80 @@ const CEOWalker: React.FC<CEOWalkerProps> = ({ ceoPosRef, visible }) => {
     <group ref={groupRef}>
       {/* Head */}
       <mesh position={[0, 1.55, 0]}>
-        <sphereGeometry args={[0.2, 12, 8]} />
-        <meshStandardMaterial color="#f5d0a9" roughness={0.7} />
+        <sphereGeometry args={[0.19, 14, 10]} />
+        <meshStandardMaterial color="#e8c8a0" roughness={0.6} />
       </mesh>
-      {/* Body (gold suit) */}
+      {/* Eyes */}
+      <mesh position={[-0.055, 1.57, 0.16]}>
+        <sphereGeometry args={[0.03, 6, 4]} />
+        <meshBasicMaterial color="#222" />
+      </mesh>
+      <mesh position={[0.055, 1.57, 0.16]}>
+        <sphereGeometry args={[0.03, 6, 4]} />
+        <meshBasicMaterial color="#222" />
+      </mesh>
+      {/* Hair */}
+      <mesh position={[0, 1.62, -0.04]}>
+        <sphereGeometry args={[0.18, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+      {/* Body (gold suit capsule) */}
       <mesh position={[0, 0.85, 0]}>
-        <boxGeometry args={[0.4, 0.6, 0.25]} />
-        <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.3} roughness={0.4} metalness={0.5} />
+        <capsuleGeometry args={[0.16, 0.3, 4, 12]} />
+        <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.25} roughness={0.35} metalness={0.5} />
       </mesh>
       {/* Legs */}
-      <mesh position={[-0.12, 0.45, 0]}>
-        <boxGeometry args={[0.14, 0.4, 0.14]} />
-        <meshStandardMaterial color="#333" roughness={0.8} />
+      <mesh position={[-0.1, 0.45, 0]}>
+        <cylinderGeometry args={[0.055, 0.055, 0.4, 6]} />
+        <meshStandardMaterial color="#2d2d3d" roughness={0.8} />
       </mesh>
-      <mesh position={[0.12, 0.45, 0]}>
-        <boxGeometry args={[0.14, 0.4, 0.14]} />
-        <meshStandardMaterial color="#333" roughness={0.8} />
+      <mesh position={[0.1, 0.45, 0]}>
+        <cylinderGeometry args={[0.055, 0.055, 0.4, 6]} />
+        <meshStandardMaterial color="#2d2d3d" roughness={0.8} />
+      </mesh>
+      {/* Shoes */}
+      <mesh position={[-0.1, 0.22, 0.04]}>
+        <boxGeometry args={[0.1, 0.04, 0.16]} />
+        <meshStandardMaterial color="#111" roughness={0.7} />
+      </mesh>
+      <mesh position={[0.1, 0.22, 0.04]}>
+        <boxGeometry args={[0.1, 0.04, 0.16]} />
+        <meshStandardMaterial color="#111" roughness={0.7} />
       </mesh>
       {/* Arms */}
-      <mesh position={[-0.28, 0.85, 0]}>
-        <boxGeometry args={[0.1, 0.45, 0.1]} />
-        <meshStandardMaterial color="#fbbf24" roughness={0.4} metalness={0.5} />
+      <mesh position={[-0.24, 0.9, 0]} rotation={[0, 0, 0.15]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.38, 6]} />
+        <meshStandardMaterial color="#fbbf24" roughness={0.35} metalness={0.5} />
       </mesh>
-      <mesh position={[0.28, 0.85, 0]}>
-        <boxGeometry args={[0.1, 0.45, 0.1]} />
-        <meshStandardMaterial color="#fbbf24" roughness={0.4} metalness={0.5} />
+      <mesh position={[0.24, 0.9, 0]} rotation={[0, 0, -0.15]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.38, 6]} />
+        <meshStandardMaterial color="#fbbf24" roughness={0.35} metalness={0.5} />
+      </mesh>
+      {/* Hands */}
+      <mesh position={[-0.28, 0.72, 0]}>
+        <sphereGeometry args={[0.04, 6, 4]} />
+        <meshStandardMaterial color="#e8c8a0" roughness={0.7} />
+      </mesh>
+      <mesh position={[0.28, 0.72, 0]}>
+        <sphereGeometry args={[0.04, 6, 4]} />
+        <meshStandardMaterial color="#e8c8a0" roughness={0.7} />
       </mesh>
       {/* Crown */}
-      <mesh position={[0, 1.8, 0]}>
-        <coneGeometry args={[0.08, 0.2, 4]} />
+      <mesh position={[0, 1.78, 0]}>
+        <coneGeometry args={[0.1, 0.22, 5]} />
         <meshBasicMaterial color="#fbbf24" />
       </mesh>
       {/* CEO glow */}
-      <mesh position={[0, 2.1, 0]}>
-        <sphereGeometry args={[0.04, 4, 3]} />
+      <mesh position={[0, 2.05, 0]}>
+        <sphereGeometry args={[0.05, 6, 4]} />
         <meshBasicMaterial color="#fbbf24" />
       </mesh>
-      {/* CEO spotlight */}
-      <pointLight position={[0, 2.5, 0]} color="#fbbf24" intensity={1.5} distance={5} />
+      <pointLight position={[0, 2.5, 0]} color="#fbbf24" intensity={2} distance={6} />
     </group>
   );
 };
 
-// ===== Elevator Animator (R3F inner component) =====
+// ===== Elevator Animator (R3F) =====
 interface ElevAnimProps {
   elevators: ElevatorCar[];
 }
@@ -185,11 +217,11 @@ const ElevAnimator: React.FC<ElevAnimProps> = ({ elevators }) => {
 
   useFrame(() => {
     if (carARef.current && elevatorsRef.current[0]) {
-      const tgtY = (elevatorsRef.current[0].currentFloor - 1) * 4 + 3;
+      const tgtY = (elevatorsRef.current[0].currentFloor - 1) * FLOOR_H + 3;
       carARef.current.position.y = THREE.MathUtils.lerp(carARef.current.position.y, tgtY, 0.08);
     }
     if (carBRef.current && elevatorsRef.current[1]) {
-      const tgtY = (elevatorsRef.current[1].currentFloor - 1) * 4 + 3;
+      const tgtY = (elevatorsRef.current[1].currentFloor - 1) * FLOOR_H + 3;
       carBRef.current.position.y = THREE.MathUtils.lerp(carBRef.current.position.y, tgtY, 0.08);
     }
   });
@@ -199,11 +231,11 @@ const ElevAnimator: React.FC<ElevAnimProps> = ({ elevators }) => {
 
   return (
     <group>
-      <mesh ref={carARef} position={[-1.5, (initA - 1) * 4 + 3, 2]}>
+      <mesh ref={carARef} position={[-1.5, (initA - 1) * FLOOR_H + 3, 2]}>
         <boxGeometry args={[2.2, 2.5, 2.2]} />
         <meshPhysicalMaterial color="#06b6d4" transparent opacity={0.6} roughness={0.1} metalness={0.8} emissive="#0891b2" emissiveIntensity={0.4} side={THREE.DoubleSide} />
       </mesh>
-      <mesh ref={carBRef} position={[1.5, (initB - 1) * 4 + 3, 2]}>
+      <mesh ref={carBRef} position={[1.5, (initB - 1) * FLOOR_H + 3, 2]}>
         <boxGeometry args={[2.2, 2.5, 2.2]} />
         <meshPhysicalMaterial color="#06b6d4" transparent opacity={0.6} roughness={0.1} metalness={0.8} emissive="#0891b2" emissiveIntensity={0.4} side={THREE.DoubleSide} />
       </mesh>
@@ -211,7 +243,7 @@ const ElevAnimator: React.FC<ElevAnimProps> = ({ elevators }) => {
   );
 };
 
-// ===== Main BuildingCanvas Component =====
+// ===== Main BuildingCanvas =====
 export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
   floors,
   selectedFloorId,
@@ -227,13 +259,12 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
   const [hoveredAgent, setHoveredAgent] = useState<any>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Shared refs for CEO walk communication between outer React and R3F
   const keysRef = useRef<Set<string>>(new Set());
   const joystickRef = useRef<{ x: number; z: number }>({ x: 0, z: 0 });
-  const ceoPosRef = useRef(new THREE.Vector3(0, (95 - 1) * 4 + 2 + 0.01, 0));
+  const ceoPosRef = useRef(new THREE.Vector3(0, (95 - 1) * FLOOR_H + 2 + 0.01, 0));
   const controlsRef = useRef<any>(null);
 
-  // Keyboard handler for CEO walk
+  // Keyboard for CEO walk
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
       if (cameraPreset === 'ceo_walk') keysRef.current.add(e.key.toLowerCase());
@@ -241,13 +272,10 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
     const onUp = (e: KeyboardEvent) => keysRef.current.delete(e.key.toLowerCase());
     window.addEventListener('keydown', onDown);
     window.addEventListener('keyup', onUp);
-    return () => {
-      window.removeEventListener('keydown', onDown);
-      window.removeEventListener('keyup', onUp);
-    };
+    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp); };
   }, [cameraPreset]);
 
-  // Touch joystick handlers
+  // Touch joystick
   const handleJoystickMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     if (!e.touches[0]) return;
@@ -259,33 +287,31 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
   }, []);
   const handleJoystickEnd = useCallback(() => { joystickRef.current = { x: 0, z: 0 }; }, []);
 
-  // WebGL capability check
+  // WebGL check
   useEffect(() => {
     try {
-      const testCanvas = document.createElement('canvas');
-      const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
-      if (!gl) setWebglError('WebGL not supported on this device');
-      testCanvas.remove();
-    } catch {
-      setWebglError('WebGL initialization failed');
-    }
+      const tc = document.createElement('canvas');
+      const gl = tc.getContext('webgl2') || tc.getContext('webgl');
+      if (!gl) setWebglError('WebGL not supported');
+      tc.remove();
+    } catch { setWebglError('WebGL init failed'); }
   }, []);
 
-  // Mouse tracking for tooltip
+  // Mouse position for tooltip
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!mountRef.current) return;
     const rect = mountRef.current.getBoundingClientRect();
     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   }, []);
 
-  // Agent hover handler (passed to HumanFigure inside Canvas)
+  // Agent hover handlers
   const handleAgentHoverIn = useCallback((agent: any) => (e: any) => {
     e.stopPropagation();
     setHoveredAgent(agent);
   }, []);
   const handleAgentHoverOut = useCallback(() => setHoveredAgent(null), []);
 
-  // Calculate visible floor range
+  // Visible floor range
   const isMob = isMobileDevice();
   const floorRange = useMemo(() => ({
     start: Math.max(1, selectedFloorId - (isMob ? 2 : 5)),
@@ -297,7 +323,7 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
     [floors, floorRange]
   );
 
-  // WebGL error fallback
+  // Error fallback
   if (webglError) {
     return (
       <div className="relative w-full h-full bg-gray-950 flex items-center justify-center p-6">
@@ -330,18 +356,12 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
         }}
       >
         <Suspense fallback={null}>
-          {/* ======== LIGHTS ======== */}
+          {/* Lights */}
           <ambientLight color="#1e293b" intensity={1.5} />
-          <directionalLight
-            color="#fffbeb"
-            intensity={3.5}
-            position={[100, 350, 100]}
-            castShadow={!isMob}
-            shadow-mapSize={[1024, 1024]}
-          />
+          <directionalLight color="#fffbeb" intensity={3.5} position={[100, 350, 100]} castShadow={!isMob} />
           <pointLight color="#06b6d4" intensity={5} distance={200} position={[0, 200, 0]} />
 
-          {/* ======== ORBIT CONTROLS ======== */}
+          {/* OrbitControls */}
           <OrbitControls
             ref={controlsRef}
             makeDefault
@@ -352,7 +372,7 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
             maxDistance={500}
           />
 
-          {/* ======== CAMERA CONTROLLER ======== */}
+          {/* Camera Controller */}
           <CameraCtrl
             cameraPreset={cameraPreset}
             selectedFloorId={selectedFloorId}
@@ -362,65 +382,61 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
             controlsRef={controlsRef}
           />
 
-          {/* ======== BUILDING SHELL ======== */}
-          <BuildingShell totalFloors={100} />
+          {/* Building Shell — SOLID exterior */}
+          <BuildingShell totalFloors={100} selectedFloorId={selectedFloorId} />
 
-          {/* ======== INTERIOR FLOORS + AGENTS ======== */}
+          {/* Interior Floors — CUTAWAY for selected, SOLID for others */}
           {visibleFloors.map(floor => {
-            const yPos = (floor.id - 1) * 4 + 2;
+            const yPos = (floor.id - 1) * FLOOR_H + 2;
+            const isSelected = floor.id === selectedFloorId;
             return (
               <group key={`floor-${floor.id}`} position={[0, yPos, 0]}>
-                {/* Office floor with walls, furniture */}
                 <OfficeFloor
                   floorId={floor.id}
-                  isSelected={floor.id === selectedFloorId}
+                  isSelected={isSelected}
                   themeColor={floor.themeColor}
                   onClick={() => {
                     if (cameraPreset !== 'ceo_walk') onSelectFloor(floor.id);
                   }}
                 />
 
-                {/* AI Agent figures on this floor */}
-                {floor.agents.map(agent => {
-                  const agentY = 0.15; // standing on carpet top
-                  return (
-                    <group
-                      key={`agent-${agent.id}`}
-                      position={[agent.pos.x, agentY, agent.pos.z]}
-                      onPointerOver={handleAgentHoverIn({
-                        name: agent.name,
-                        role: agent.role,
-                        model: agent.aiModel,
-                        status: agent.status,
-                        color: agent.avatarColor,
-                      })}
-                      onPointerOut={handleAgentHoverOut}
-                      onClick={() => {
-                        if (cameraPreset !== 'ceo_walk') onSelectAgent(agent.id);
-                      }}
-                    >
-                      <HumanFigure
-                        position={[0, 0, 0]}
-                        color={agent.avatarColor}
-                        name={agent.name}
-                        status={agent.status}
-                      />
-                    </group>
-                  );
-                })}
+                {/* Agents — only on selected floor for performance */}
+                {isSelected && floor.agents.map(agent => (
+                  <group
+                    key={`agent-${agent.id}`}
+                    position={[agent.pos.x, 0.15, agent.pos.z]}
+                    onPointerOver={handleAgentHoverIn({
+                      name: agent.name,
+                      role: agent.role,
+                      model: agent.aiModel,
+                      status: agent.status,
+                    })}
+                    onPointerOut={handleAgentHoverOut}
+                    onClick={() => {
+                      if (cameraPreset !== 'ceo_walk') onSelectAgent(agent.id);
+                    }}
+                  >
+                    <HumanFigure
+                      position={[0, 0, 0]}
+                      color={agent.avatarColor}
+                      name={agent.name}
+                      status={agent.status}
+                    />
+                  </group>
+                ))}
               </group>
             );
           })}
 
-          {/* ======== CEO AVATAR ======== */}
+          {/* CEO Avatar */}
           <CEOWalker ceoPosRef={ceoPosRef} visible={isWalkMode} />
 
-          {/* ======== ELEVATOR CARS ======== */}
+          {/* Elevators */}
           <ElevAnimator elevators={elevators} />
         </Suspense>
       </Canvas>
 
-      {/* ======== WALK MODE HUD ======== */}
+      {/* Walk HUD */}
       {isWalkMode && (
         <div className="absolute top-3 left-3 z-10 pointer-events-none">
           <div className="px-3 py-2 rounded-xl bg-amber-950/80 border border-amber-500/40 backdrop-blur-md text-xs text-amber-300 font-mono flex items-center gap-2 shadow-lg animate-pulse">
@@ -428,7 +444,6 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
           </div>
         </div>
       )}
-
       {!isWalkMode && (
         <div className="absolute top-3 left-3 z-10 pointer-events-none">
           <div className="px-3 py-1.5 rounded-lg bg-slate-950/80 border border-cyan-500/30 backdrop-blur-md text-[10px] text-cyan-400 font-mono flex items-center gap-2 shadow-lg">
@@ -438,7 +453,7 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
         </div>
       )}
 
-      {/* ======== MOBILE JOYSTICK ======== */}
+      {/* Mobile Joystick */}
       {isWalkMode && isMob && (
         <div className="absolute bottom-20 left-6 z-30">
           <div
@@ -455,7 +470,7 @@ export const BuildingCanvas: React.FC<BuildingCanvasProps> = ({
         </div>
       )}
 
-      {/* ======== HOVER TOOLTIP ======== */}
+      {/* Hover Tooltip */}
       {hoveredAgent && !isWalkMode && (
         <div
           className="absolute z-20 pointer-events-none p-3 rounded-xl border border-cyan-500/40 bg-slate-950/90 backdrop-blur-md text-xs font-mono text-white shadow-lg"
