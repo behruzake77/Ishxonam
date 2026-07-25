@@ -114,6 +114,9 @@ export const App: React.FC = () => {
         setCameraPreset('agent_focus');
       } else if (e.key === '4') {
         setCameraPreset('sky_lounge');
+      } else if (e.key === '5') {
+        setCameraPreset(prev => prev === 'ceo_walk' ? 'floor_focus' : 'ceo_walk');
+        soundManager.playClick();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -422,6 +425,20 @@ export const App: React.FC = () => {
           >
             <span className="text-lg">⚙️</span>
             <span className="text-[10px] font-mono font-bold">CEO</span>
+          </button>
+          <button
+            onClick={() => { 
+              setCameraPreset(prev => prev === 'ceo_walk' ? 'floor_focus' : 'ceo_walk'); 
+              soundManager.playClick(); 
+            }}
+            className={`flex-1 flex flex-col items-center justify-center py-2 rounded-xl transition-all mobile-tap ${
+              cameraPreset === 'ceo_walk'
+                ? 'text-amber-300 bg-amber-500/20'
+                : 'text-emerald-400/70 active:text-emerald-300 active:bg-emerald-500/10'
+            }`}
+          >
+            <span className="text-lg">🚶</span>
+            <span className="text-[10px] font-mono font-bold">Walk</span>
           </button>
         </div>
 

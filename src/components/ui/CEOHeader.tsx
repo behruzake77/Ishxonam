@@ -14,7 +14,8 @@ import {
   Brain,
   Wifi,
   Terminal,
-  ShieldCheck
+  ShieldCheck,
+  PersonStanding
 } from 'lucide-react';
 import { CameraPreset, SystemMetrics } from '../../types/office';
 import { soundManager } from '../../utils/audio';
@@ -204,7 +205,8 @@ export const CEOHeader: React.FC<CEOHeaderProps> = ({
             { preset: 'full_skyscraper', label: 'Full', icon: Building2 },
             { preset: 'floor_focus', label: 'Floor', icon: Focus },
             { preset: 'agent_focus', label: 'Agent', icon: User },
-            { preset: 'sky_lounge', label: 'Sky', icon: Crown }
+            { preset: 'sky_lounge', label: 'Sky', icon: Crown },
+            { preset: 'ceo_walk', label: 'Walk', icon: PersonStanding }
           ].map(({ preset, label, icon: Icon }) => (
             <button
               key={preset}

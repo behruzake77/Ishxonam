@@ -152,7 +152,8 @@ export type CameraPreset =
   | 'floor_focus' 
   | 'agent_focus' 
   | 'sky_lounge' 
-  | 'interior_cutaway';
+  | 'interior_cutaway'
+  | 'ceo_walk';
 
 export interface SystemMetrics {
   totalAgents: number;
